@@ -1,26 +1,25 @@
-/* Copyright 2017 Toon Van den Zegel. All Rights Reserved.								*/
+/* Copyright 2017 Toon Van den Zegel. All Rights Reserved.                              */
 /*                                                                                      */
-/* This file is part of bohme_shading_constraint_filter.								*/
+/* This file is part of fast_bilateral_space_stereo.                                    */
 /* 																						*/
-/* bohme_shading_constraint_filter is free software :									*/
-/* you can redistribute it and / or modify											*/
+/* fast_bilateral_space_stereo is free software :									    */
+/* you can redistribute it and / or modify											    */
 /* it under the terms of the GNU General Public License as published by					*/
 /* the Free Software Foundation, either version 3 of the License, or					*/
 /* (at your option) any later version.													*/
 /* 																						*/
-/* bohme_shading_constraint_filter is distributed in the hope that it will be useful,	*/
+/* fast_bilateral_space_stereo is distributed in the hope that it will be useful,	    */
 /* but WITHOUT ANY WARRANTY; without even the implied warranty of						*/
 /* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the							*/
 /* GNU General Public License for more details.											*/
 /* 																						*/
 /* You should have received a copy of the GNU General Public License					*/
-/* along with bohme_shading_constraint_filter.                                          */
+/* along with fast_bilateral_space_stereo.                                              */
 /* If not, see <http://www.gnu.org/licenses/>.					                     	*/
 
 #pragma once
 
 #include <Eigen/Sparse>
-#include "eigen_sparse_serialize.h"
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
@@ -46,15 +45,24 @@ public:
 public:
 	bilateral_grid_simplified();
 
+	// Initialize the simplified grid.
 	void init(const cv::Mat reference_bgr, const int sigma_spatial = 32, const int sigma_luma = 32, const int sigma_chroma = 32);
 
-	Eigen::MatrixXf blur(Eigen::MatrixXf& in);
-
-	Eigen::SparseMatrix<float, Eigen::RowMajor> blur(const Eigen::SparseMatrix<float, Eigen::RowMajor>& in);
-
+	// Apply a bilateral filter to an image
+	// [in] input_image: expects a single channel floating-point image 
+	// returns a smoothed image
 	cv::Mat filter(cv::Mat input_image);
 
+	// Apply the splat and splice operation on an image
+	// [in] input_image: expects a single channel floating-point image
+	// returns a splat and spliced image
 	cv::Mat splat_slice(cv::Mat input_image);
+
+	// Apply the blur matrix
+	// - [in] in: a matrix in bilateral space
+	// returns a smoothed matrix
+	Eigen::MatrixXf blur(Eigen::MatrixXf& in) const;
+	Eigen::SparseMatrix<float, Eigen::RowMajor> blur(const Eigen::SparseMatrix<float, Eigen::RowMajor>& in) const;
 
 private:
 	std::int32_t nb_vertices;

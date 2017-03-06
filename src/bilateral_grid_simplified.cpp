@@ -1,3 +1,22 @@
+/* Copyright 2017 Toon Van den Zegel. All Rights Reserved.                              */
+/*                                                                                      */
+/* This file is part of fast_bilateral_space_stereo.                                    */
+/* 																						*/
+/* fast_bilateral_space_stereo is free software :									    */
+/* you can redistribute it and / or modify											    */
+/* it under the terms of the GNU General Public License as published by					*/
+/* the Free Software Foundation, either version 3 of the License, or					*/
+/* (at your option) any later version.													*/
+/* 																						*/
+/* fast_bilateral_space_stereo is distributed in the hope that it will be useful,	    */
+/* but WITHOUT ANY WARRANTY; without even the implied warranty of						*/
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the							*/
+/* GNU General Public License for more details.											*/
+/* 																						*/
+/* You should have received a copy of the GNU General Public License					*/
+/* along with fast_bilateral_space_stereo.                                              */
+/* If not, see <http://www.gnu.org/licenses/>.					                     	*/
+
 #include "bilateral_grid_simplified.h"
 
 bilateral_grid_simplified::bilateral_grid_simplified() :
@@ -11,6 +30,7 @@ bilateral_grid_simplified::bilateral_grid_simplified() :
 
 void bilateral_grid_simplified::init(const cv::Mat reference_bgr, const int sigma_spatial, const int sigma_luma, const int sigma_chroma)
 {
+	// let's work in yuv space
 	cv::Mat reference_yuv;
 	cv::cvtColor(reference_bgr, reference_yuv, CV_BGR2YUV);
 
@@ -30,6 +50,7 @@ void bilateral_grid_simplified::init(const cv::Mat reference_bgr, const int sigm
 	max_coord[3] = 255 / sigma_chroma;
 	max_coord[4] = 255 / sigma_chroma;
 
+	// with this hash function we can convert each 5 dimensional coordinate to 1 unique number
 	std::int64_t hash_vec[5];
 	for (int i = 0; i < 5; ++i)
 		hash_vec[i] = static_cast<std::int64_t>(std::pow(255, i));
@@ -45,6 +66,7 @@ void bilateral_grid_simplified::init(const cv::Mat reference_bgr, const int sigm
 	std::vector<T> tripletList;
 	tripletList.reserve(w * h);
 
+	// loop through each pixel of the image
 	for (int y = 0; y < h; ++y)
 	{
 		for (int x = 0; x < w; ++x)
@@ -56,10 +78,14 @@ void bilateral_grid_simplified::init(const cv::Mat reference_bgr, const int sigm
 			coord[3] = pref[1] / sigma_chroma;
 			coord[4] = pref[2] / sigma_chroma;
 
+			// convert the coordinate to a hash value
 			std::int64_t hash_coord = 0;
 			for (int i = 0; i < 5; ++i)
 				hash_coord += coord[i] * hash_vec[i];
 
+			// pixels whom are alike will have the same hash value.
+			// We only want to keep a unique list of hash values, therefore make sure we only insert
+			// unique hash values.
 			auto it = hashed_coords.find(hash_coord);
 			if (it == hashed_coords.end())
 			{
@@ -73,12 +99,12 @@ void bilateral_grid_simplified::init(const cv::Mat reference_bgr, const int sigm
 
 			}
 
-			pref += 3;
+			pref += 3; // skip 3 bytes (y u v)
 			++pix_idx;
 		}
 	}
 
-
+	// construct our splat and splice matrices
 	mat_splat = Eigen::SparseMatrix<float, Eigen::RowMajor>(hashed_coords.size(), tripletList.size());
 	mat_splat.setFromTriplets(tripletList.begin(), tripletList.end());
 	mat_slice = mat_splat.transpose();
@@ -139,12 +165,8 @@ void bilateral_grid_simplified::init(const cv::Mat reference_bgr, const int sigm
 	mat_slice.finalize();
 	mat_splat.finalize();
 	mat_blur.finalize();
-	//mat_slice.makeCompressed();
-	//mat_splat.makeCompressed();
-	//mat_blur.makeCompressed();
 
-	
-	//
+	// normalization matrix (the splat matrix is not normalized)
 	Eigen::MatrixXf mat_ones(w*h, 1);
 	mat_ones.setOnes();
 	Eigen::MatrixXf mat_ones_splatted = mat_splat * mat_ones;
@@ -152,13 +174,12 @@ void bilateral_grid_simplified::init(const cv::Mat reference_bgr, const int sigm
 
 }
 
-Eigen::MatrixXf bilateral_grid_simplified::blur(Eigen::MatrixXf& in)
+Eigen::MatrixXf bilateral_grid_simplified::blur(Eigen::MatrixXf& in) const
 {
 	return  mat_blur * in + (in *(5.0f * 2.0f));
 }
 
-
-Eigen::SparseMatrix<float, Eigen::RowMajor> bilateral_grid_simplified::blur(const Eigen::SparseMatrix<float, Eigen::RowMajor>& in)
+Eigen::SparseMatrix<float, Eigen::RowMajor> bilateral_grid_simplified::blur(const Eigen::SparseMatrix<float, Eigen::RowMajor>& in) const
 {
 	Eigen::SparseMatrix<float, Eigen::RowMajor> a = (in *(5.0f * 2.0f));
 	Eigen::SparseMatrix<float, Eigen::RowMajor> b = mat_blur * in;
@@ -167,15 +188,20 @@ Eigen::SparseMatrix<float, Eigen::RowMajor> bilateral_grid_simplified::blur(cons
 
 cv::Mat bilateral_grid_simplified::filter(cv::Mat input_image)
 {
+	assert(input_image.type() == CV_32FC1);
+
 	std::chrono::steady_clock::time_point start_blur = std::chrono::steady_clock::now();
 
+	// splat & blur & slice
 	Eigen::Map<Eigen::MatrixXf> eig_input_image(reinterpret_cast<float*>(input_image.data), input_image.cols * input_image.rows, 1);
 	Eigen::MatrixXf mat_splatted = mat_splat * eig_input_image;
 	Eigen::MatrixXf mat_splatted_and_blurred = blur(mat_splatted);
 	Eigen::MatrixXf mat_blurred = mat_slice * mat_splatted_and_blurred;
 
+	// normalize
 	Eigen::MatrixXf mat_blurred_result = mat_blurred.cwiseQuotient(mat_normalizer);
 
+	// convert to opencv
 	cv::Mat cv_blurred_result(input_image.rows, input_image.cols, CV_32FC1);
 	memcpy(cv_blurred_result.data, mat_blurred_result.data(), input_image.rows * input_image.cols * sizeof(float));
 
@@ -187,10 +213,14 @@ cv::Mat bilateral_grid_simplified::filter(cv::Mat input_image)
 
 cv::Mat bilateral_grid_simplified::splat_slice(cv::Mat input_image)
 {
+	assert(input_image.type() == CV_32FC1);
+
+	// splat & slice
 	Eigen::Map<Eigen::MatrixXf> eig_input_image(reinterpret_cast<float*>(input_image.data), input_image.cols * input_image.rows, 1);
 	Eigen::MatrixXf mat_splatted = mat_splat * eig_input_image;
 	Eigen::MatrixXf mat_sliced = mat_slice * mat_splatted;
 
+	// normalize
 	Eigen::MatrixXf result = mat_sliced.cwiseQuotient(mat_normalizer);
 
 	cv::Mat cv_result(input_image.rows, input_image.cols, CV_32FC1);
@@ -198,8 +228,6 @@ cv::Mat bilateral_grid_simplified::splat_slice(cv::Mat input_image)
 
 	return cv_result;
 }
-
-
 
 //void serialize(std::string directory)
 //{
