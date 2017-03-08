@@ -223,7 +223,7 @@ cv::Mat fast_bilateral_solver::solve(cv::Mat initial_image_float, const bilatera
 	options.minimizer_progress_to_stdout = true;
 	options.max_num_iterations = max_num_iterations;
 	ceres::GradientProblemSolver::Summary summary;
-	fast_bilateral_problem* pr = new fast_bilateral_problem(mat_C_CBC, grid, data_cost_lookup, disparity_range, lambda);
+	fast_bilateral_problem* pr = new fast_bilateral_problem(mat_C_CBC, grid, data_cost_lookup, disparity_range, lambda, keep_nb_of_intermediate_images);
 	ceres::GradientProblem problem(pr);
 	ceres::Solve(options, problem, parameters, &summary);
 

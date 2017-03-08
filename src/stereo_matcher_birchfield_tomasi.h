@@ -79,9 +79,6 @@ public:
 	stereo_matcher_birchfield_tomasi();
 	~stereo_matcher_birchfield_tomasi();
 
-	const output& get_output() { return current_output; }
-	parameters& get_parameters() { return current_parameters; }
-
 	// This function generates a min and max disparity image
 	// - [in] stereo_images: uint8 grayscale stereo images
 	// output: see get_output() 

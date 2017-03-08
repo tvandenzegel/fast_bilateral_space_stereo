@@ -88,15 +88,16 @@ void stereo_matcher_birchfield_tomasi::stereo_match(cv::Mat stereo_images[2])
 		{
 			for (int y = 0; y < height; ++y)
 			{
-				for (int x = 0; x < -d; ++x)
+				// we cannot calculate the cost function here, because we will go out of the image
+				// so let's say we allow this disparity...
+				int idx = y * width;
+				for (int x = 0; x < -d; ++x, ++idx)
 				{
-					int idx = x + y * width;
-					block_match_image.data[idx] = 0;
+					block_match_image.data[idx] = 1;
 				}
 
-				for (int x = -d; x < width; ++x)
+				for (int x = -d; x < width; ++x, ++idx)
 				{
-					int idx = x + y * width;
 					block_match_image.data[idx] =
 						(stereo_images_upper[0].data[idx] >= stereo_images_lower[1].data[idx + d])
 						&&
@@ -108,20 +109,20 @@ void stereo_matcher_birchfield_tomasi::stereo_match(cv::Mat stereo_images[2])
 		{
 			for (int y = 0; y < height; ++y)
 			{
-				for (int x = 0; x < width - d; ++x)
+				int idx = y * width;
+				for (int x = 0; x < width - d; ++x, ++idx)
 				{
-					int idx = x + y * width;
 					block_match_image.data[idx] =
 						(stereo_images_upper[0].data[idx] >= stereo_images_lower[1].data[idx + d])
 						&&
 						(stereo_images_lower[0].data[idx] <= stereo_images_upper[1].data[idx + d]);
 				}
 
-
-				for (int x = width - d; x < width; ++x)
+				// we cannot calculate the cost function here, because we will go out of the image
+				// so let's say we allow this disparity...
+				for (int x = width - d; x < width; ++x, ++idx)
 				{
-					int idx = x + y * width;
-					block_match_image.data[idx] = 0;
+					block_match_image.data[idx] = 1; 
 				}
 			}
 		}
