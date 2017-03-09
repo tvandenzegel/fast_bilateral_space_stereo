@@ -4,7 +4,7 @@ The goal of this project was to get a real understanding and practical experienc
 Only the simplified bilateral grid method without the multiscale optimization is implemented.  
 The algorithm needs a stereo pair as input and will generate a disparity map.
 
-![Overview screenshot](data/middlebury_summary.jpg.jpg?raw=true "Overview screenshot")
+![Overview screenshot](data/middlebury_summary.jpg?raw=true "Overview screenshot")
 
 ## Dependencies
 The following dependencies are needed.  
