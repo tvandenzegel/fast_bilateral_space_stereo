@@ -1,21 +1,16 @@
-# Fast Bilateral Space Stereo
+# Fast Bilateral-Space Stereo
 ## Introduction
-A naïve implementation of the Fast Bilateral-Space Stereo paper by Jonathan T. Barron. [(link to paper)](http://jonbarron.info/BarronCVPR2015.pdf) [(link to Jon Barron personal page)](http://jonbarron.info/).
-
-The goal of this project was to get a real understanding and practical experience of this method.
-
-Only the simplified bilateral grid method without the multiscale optimization is implemented.
-
+A naïve implementation of the Fast Bilateral-Space Stereo paper by Jonathan T. Barron. [(link to paper)](http://jonbarron.info/BarronCVPR2015.pdf) [(link to Jon Barron personal page)](http://jonbarron.info/).  
+The goal of this project was to get a real understanding and practical experience of this method.  
+Only the simplified bilateral grid method without the multiscale optimization is implemented.  
 The algorithm needs a stereo pair as input and will generate a disparity map.
 
 
 ![Alt text](data/result_3d.jpg?raw=true "Title")\go
 
 ## Dependencies
-The following dependencies are needed.
-
-The version numbers are the ones used during development.
-
+The following dependencies are needed.  
+The version numbers are the ones used during development.  
 - OpenCV 3.2.0
   - (optional) opencv_contrib (if you want to use the domain transform filter to smoothen the disparity map)
 - Eigen 3.3.2
