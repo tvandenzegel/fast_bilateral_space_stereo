@@ -1,21 +1,30 @@
 # Fast Bilateral Space Stereo
 ## Introduction
 A naïve implementation of the Fast Bilateral-Space Stereo paper by Jonathan T. Barron. [(link to paper)](http://jonbarron.info/BarronCVPR2015.pdf) [(link to Jon Barron personal page)](http://jonbarron.info/).
-The goal of this project was to get practical experience and understanding of the paper.
-Only the simplified bilateral grid without the multiscale optimization is implemented.
-The algorithm needs a stereo pair as input and the output is a disparity map.
+
+The goal of this project was to get a real understanding and practical experience of this method.
+
+Only the simplified bilateral grid method without the multiscale optimization is implemented.
+
+The algorithm needs a stereo pair as input and will generate a disparity map.
 
 
 ![Alt text](data/result_3d.jpg?raw=true "Title")\go
 
 ## Dependencies
+The following dependencies are needed.
 
-- OpenCV
-- Eigen
-- Ceres Solver
-  - Glog
-  - GFlags
-  
+The version numbers are the ones used during development.
+
+- OpenCV 3.2.0
+  - (optional) opencv_contrib (if you want to use the domain transform filter to smoothen the disparity map)
+- Eigen 3.3.2
+- Ceres Solver 1.12.0
+  - Glog 0.3.3
+  - GFlags 2.2.0
+
+The code was developed on a Windows machine with Visual Studio 2015.  
+
 ## References
 [[1]](http://jonbarron.info/BarronCVPR2015.pdf) Barron, Jonathan T., et al. "Fast bilateral-space stereo for synthetic defocus." *Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition.* 2015.
 

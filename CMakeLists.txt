@@ -13,10 +13,10 @@ find_package(Ceres)
 
 # Source files
 SET(FAST_BIL_SOURCES
-	src/main.cpp
-	src/bilateral_grid_simplified.cpp
-	src/bilateral_grid_simplified.h
-	src/fast_bilateral_solver.cpp
+    src/main.cpp
+    src/bilateral_grid_simplified.cpp
+    src/bilateral_grid_simplified.h
+    src/fast_bilateral_solver.cpp
     src/fast_bilateral_solver.h
     src/stereo_matcher_birchfield_tomasi.cpp
     src/stereo_matcher_birchfield_tomasi.h
@@ -26,6 +26,9 @@ include_directories(${EIGEN_INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS} ${GLOG_INCLUDE_D
 
 # Create the executable
 add_executable(fast_bilateral_space_stereo ${FAST_BIL_SOURCES})
-
-SET(LINK_LIBRARY ${CERES_LIBRARIES} ${OpenCV_LIBS} ${GLOG_LIBRARIES} shlwapi.lib)
+if(MSVC)
+    set(LINK_LIBRARY ${CERES_LIBRARIES} ${OpenCV_LIBS} ${GLOG_LIBRARIES} shlwapi.lib)
+else()
+    set(LINK_LIBRARY ${CERES_LIBRARIES} ${OpenCV_LIBS} ${GLOG_LIBRARIES})
+endif()
 target_link_libraries(fast_bilateral_space_stereo ${LINK_LIBRARY})

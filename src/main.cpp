@@ -17,14 +17,14 @@
 /* along with fast_bilateral_space_stereo.                                              */
 /* If not, see <http://www.gnu.org/licenses/>.                                          */
 
-#define ENABLE_DOMAIN_TRANSFORM_FILTER
+#define ENABLE_DOMAIN_TRANSFORM_FILTER // you need OpenCV extra modules for this, you can just comment this otherwise.
 
 #include <string>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
 #ifdef ENABLE_DOMAIN_TRANSFORM_FILTER
-#include <opencv2/ximgproc.hpp>
+#include <opencv2/ximgproc.hpp> 
 #endif
 
 #include "bilateral_grid_simplified.h"
@@ -146,8 +146,8 @@ int main(int argc, char** argv)
 	stereo_matcher.get_output().conf_disp_image.convertTo(input_confidence_fl, CV_32FC1, 1.0f / 255.0f);
 
 	// for initialization, let's apply a weighted bilateral filter!
-	//   blur(image x confidence) / blur(confidence)
-	//  
+	//   filtered image = blur(image x confidence) / blur(confidence)
+	//   the confidence image is an image where a 1 means we have a match with the stereo matcher. 0 if there was no match.
 	cv::Mat tc_im;
 	cv::multiply(input_x_fl, input_confidence_fl, tc_im); 
 	cv::Mat tc = grid.filter(tc_im);
