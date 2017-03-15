@@ -8,6 +8,7 @@ The algorithm needs a stereo pair as input and will generate a disparity map.
 <p align="center">
 <img src="data/middlebury_summary.jpg" width="500"> 
 </p>
+
 ## Dependencies
 The following dependencies are needed.  
 The version numbers are the ones used during development.  
