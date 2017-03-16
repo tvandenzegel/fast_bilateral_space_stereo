@@ -5,6 +5,9 @@ Thus writing performant code was not a criteria.
 Only the simplified bilateral grid method without the multiscale optimization is implemented.  
 The algorithm needs a stereo pair as input and will generate a disparity map.
 
+More details about this implementation can be found at http://tvdz.be/2017/03/fast-bilateral-space-stereo/.
+
+
 <p align="center">
 <img src="data/middlebury_summary.jpg" width="500"> 
 </p>
@@ -25,3 +28,5 @@ The code was developed on a Windows machine with Visual Studio 2015.
 [[1]](http://jonbarron.info/BarronCVPR2015.pdf) Barron, Jonathan T., et al. "Fast bilateral-space stereo for synthetic defocus." *Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition.* 2015.
 
 [[2]](http://jonbarron.info/BarronCVPR2015_supp.pdf) Barron, Jonathan T., et al. "Fast bilateral-space stereo for synthetic defocus—Supplemental material." *Proc. IEEE Conf. Comput. Vis. Pattern Recognit.(CVPR).* 2015.
+
+ [[3]](http://jonbarron.info/) Barron, Jonathan T., http://jonbarron.info/
